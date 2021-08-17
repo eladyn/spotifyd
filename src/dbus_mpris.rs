@@ -1,3 +1,4 @@
+use crate::config::DBusType;
 use chrono::prelude::*;
 use dbus::arg::{RefArg, Variant};
 use dbus::channel::MatchingReceiver;
@@ -25,6 +26,7 @@ use std::{collections::HashMap, env};
 pub struct DbusServer {
     session: Session,
     spirc: Arc<Spirc>,
+    dbus_type: DBusType,
     api_token: RspotifyToken,
     #[allow(clippy::type_complexity)]
     token_request: Option<Pin<Box<dyn Future<Output = Result<LibrespotToken, MercuryError>>>>>,
@@ -41,10 +43,16 @@ const SCOPE: &str = "user-read-playback-state,user-read-private,\
                      user-read-recently-played";
 
 impl DbusServer {
-    pub fn new(session: Session, spirc: Arc<Spirc>, device_name: String) -> DbusServer {
+    pub fn new(
+        session: Session,
+        spirc: Arc<Spirc>,
+        device_name: String,
+        dbus_type: DBusType,
+    ) -> DbusServer {
         DbusServer {
             session,
             spirc,
+            dbus_type,
             api_token: RspotifyToken::default(),
             token_request: None,
             dbus_future: None,
@@ -77,6 +85,7 @@ impl Future for DbusServer {
                         self.api_token.clone(),
                         self.spirc.clone(),
                         self.device_name.clone(),
+                        self.dbus_type,
                     )));
                     // TODO: for reasons I don't _entirely_ understand, the token request completing
                     // convinces callers that they don't need to re-check the status of this future
@@ -110,10 +119,17 @@ fn create_spotify_api(token: &RspotifyToken) -> Spotify {
     Spotify::default().access_token(&token.access_token).build()
 }
 
-async fn create_dbus_server(api_token: RspotifyToken, spirc: Arc<Spirc>, device_name: String) {
-    // TODO: allow other DBus types through CLI and config entry.
-    let (resource, conn) =
-        connection::new_session_sync().expect("Failed to initialize DBus connection");
+async fn create_dbus_server(
+    api_token: RspotifyToken,
+    spirc: Arc<Spirc>,
+    device_name: String,
+    dbus_type: DBusType,
+) {
+    let (resource, conn) = match dbus_type {
+        DBusType::Session => connection::new_session_sync(),
+        DBusType::System => connection::new_system_sync(),
+    }
+    .expect("Failed to initialize DBus connection");
     tokio::spawn(async {
         let err = resource.await;
         panic!("Lost connection to D-Bus: {}", err);
