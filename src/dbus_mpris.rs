@@ -1,3 +1,4 @@
+use crate::config::DBusType;
 use chrono::prelude::*;
 use dbus::arg::{RefArg, Variant};
 use dbus::channel::{MatchingReceiver, Sender};
@@ -30,6 +31,7 @@ use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 pub struct DbusServer {
     session: Session,
     spirc: Arc<Spirc>,
+    dbus_type: DBusType,
     api_token: RspotifyToken,
     #[allow(clippy::type_complexity)]
     token_request: Option<Pin<Box<dyn Future<Output = Result<LibrespotToken, MercuryError>>>>>,
@@ -53,10 +55,12 @@ impl DbusServer {
         spirc: Arc<Spirc>,
         device_name: String,
         event_rx: UnboundedReceiver<PlayerEvent>,
+        dbus_type: DBusType,
     ) -> DbusServer {
         DbusServer {
             session,
             spirc,
+            dbus_type,
             api_token: RspotifyToken::default(),
             token_request: None,
             dbus_future: None,
@@ -99,6 +103,7 @@ impl Future for DbusServer {
                         self.spirc.clone(),
                         self.device_name.clone(),
                         rx,
+                        self.dbus_type,
                     )));
                     // TODO: for reasons I don't _entirely_ understand, the token request completing
                     // convinces callers that they don't need to re-check the status of this future
@@ -144,10 +149,13 @@ async fn create_dbus_server(
     spirc: Arc<Spirc>,
     device_name: String,
     mut event_rx: UnboundedReceiver<PlayerEvent>,
+    dbus_type: DBusType,
 ) {
-    // TODO: allow other DBus types through CLI and config entry.
-    let (resource, conn) =
-        connection::new_session_sync().expect("Failed to initialize DBus connection");
+    let (resource, conn) = match dbus_type {
+        DBusType::Session => connection::new_session_sync(),
+        DBusType::System => connection::new_system_sync(),
+    }
+    .expect("Failed to initialize DBus connection");
     tokio::spawn(async {
         let err = resource.await;
         panic!("Lost connection to D-Bus: {}", err);
@@ -439,16 +447,16 @@ async fn create_dbus_server(
 
         // Update playback state from event
         let (track_id, playback_status) = match event {
-            PlayerEvent::Playing { track_id, position_ms, .. } => {
+            PlayerEvent::Playing {
+                track_id,
+                position_ms,
+                ..
+            } => {
                 seeked_position = Some(position_ms);
                 (Some(track_id), Some(PlaybackStatus::Playing))
             }
-            PlayerEvent::Stopped { .. } => {
-                (last_track_id, Some(PlaybackStatus::Stopped))
-            }
-            PlayerEvent::Paused { .. } => {
-                (last_track_id, Some(PlaybackStatus::Paused))
-            }
+            PlayerEvent::Stopped { .. } => (last_track_id, Some(PlaybackStatus::Stopped)),
+            PlayerEvent::Paused { .. } => (last_track_id, Some(PlaybackStatus::Paused)),
             _ => (last_track_id, last_playback_status),
         };
 
@@ -468,11 +476,14 @@ async fn create_dbus_server(
                 }
             }
             if let Some(playback_status) = playback_status {
-                changed_properties.insert("PlaybackStatus".to_owned(), Variant(Box::new(match playback_status {
-                    PlaybackStatus::Playing => "Playing".to_owned(),
-                    PlaybackStatus::Paused => "Paused".to_owned(),
-                    PlaybackStatus::Stopped => "Stopped".to_owned(),
-                })));
+                changed_properties.insert(
+                    "PlaybackStatus".to_owned(),
+                    Variant(Box::new(match playback_status {
+                        PlaybackStatus::Playing => "Playing".to_owned(),
+                        PlaybackStatus::Paused => "Paused".to_owned(),
+                        PlaybackStatus::Stopped => "Stopped".to_owned(),
+                    })),
+                );
             }
             let msg = dbus::nonblock::stdintf::org_freedesktop_dbus::PropertiesPropertiesChanged {
                 interface_name: "org.mpris.MediaPlayer2.Player".to_owned(),

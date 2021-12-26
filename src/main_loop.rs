@@ -1,3 +1,4 @@
+use crate::config::DBusType;
 #[cfg(feature = "dbus_mpris")]
 use crate::dbus_mpris::DbusServer;
 use crate::process::{spawn_program_on_event, Child};
@@ -70,12 +71,14 @@ fn new_dbus_server(
     spirc: Arc<Spirc>,
     device_name: String,
     event_rx: UnboundedReceiver<PlayerEvent>,
+    dbus_type: DBusType,
 ) -> Option<Pin<Box<dyn Future<Output = ()>>>> {
     Some(Box::pin(DbusServer::new(
         session,
         spirc,
         device_name,
         event_rx,
+        dbus_type,
     )))
 }
 
@@ -94,6 +97,8 @@ pub(crate) struct MainLoopState {
     pub(crate) use_mpris: bool,
     #[cfg(feature = "dbus_mpris")]
     pub(crate) mpris_event_tx: Option<UnboundedSender<PlayerEvent>>,
+    #[cfg(feature = "dbus_mpris")]
+    pub(crate) dbus_type: DBusType,
 }
 
 impl Future for MainLoopState {
@@ -193,6 +198,7 @@ impl Future for MainLoopState {
                         shared_spirc,
                         self.spotifyd_state.device_name.clone(),
                         rx,
+                        self.dbus_type,
                     );
                 }
             } else if self
