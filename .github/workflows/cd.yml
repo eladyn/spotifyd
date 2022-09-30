@@ -13,7 +13,7 @@ jobs:
       matrix:
         build_target: [linux, macos]
         artifact_type: [slim, default, full]
-        arch: [x86_64, armv6, armhf, arm64] # "our" name of the arch. How debian, rust and gcc call them will be set later
+        arch: [x86_64, armhf, arm64] # "our" name of the arch. How debian, rust and gcc call them will be set later
         # remove unwanted combinations. Arm64 macos is not supported by GH right now
         exclude:
         - build_target: macos
@@ -22,22 +22,12 @@ jobs:
           arch: armhf
         - build_target: macos
           arch: arm64
-        - build_target: linux
-          arch: armv6
-          artifact_type: default
-        - build_target: linux
-          arch: armv6
-          artifact_type: full
         include:
         # Setup Arch-specific defaults. Different systems use different names
         - arch: x86_64
           abi: gnu
           binarch: x86_64
           debarch: amd64
-        - arch: armv6
-          abi: gnueabihf
-          binarch: arm
-          debarch: armhf
         - arch: armhf
           abi: gnueabihf
           binarch: arm
@@ -50,7 +40,7 @@ jobs:
         - build_target: macos
           os: macos-latest
         - build_target: linux
-          os: ubuntu-20.04
+          os: ubuntu-18.04
         ## Setup feature sets
         - artifact_type: slim
           features: ''                       # Slim version has no features enabled by default.
@@ -98,25 +88,23 @@ jobs:
       if: matrix.build_target == 'linux'
       run: |
         .github/scripts/install-dependencies.sh ${{ matrix.arch }} ${{ matrix.binarch }} ${{ matrix.abi }} ${{ matrix.debarch }} ${{ matrix.artifact_type }}
-    - name: debug
-      uses: mxschmitt/action-tmate@v3
-#    - name: Running cargo build
-#      uses: actions-rs/cargo@v1
-#      with:
-#        command: build
-#        toolchain: ${{ matrix.rust }}
-#        args: --locked --release --target ${{ env.RUST_TARGET }} --no-default-features --features "${{ matrix.features }},${{ matrix.audio_backend }}"
-#    - name: Packaging final binary
-#      shell: bash
-#      run: |
-#        cd target/${{ env.RUST_TARGET }}/release
-#        tar czvf ${{ env.ARTIFACT_NAME}}.tar.gz spotifyd
-#        shasum -a 512 ${{ env.ARTIFACT_NAME }}.tar.gz > ${{ env.ARTIFACT_NAME }}.sha512
-#    - name: Releasing assets
-#      uses: softprops/action-gh-release@v1
-#      with:
-#        files: |
-#          target/${{ env.RUST_TARGET }}/release/${{ env.ARTIFACT_NAME }}.tar.gz
-#          target/${{ env.RUST_TARGET }}/release/${{ env.ARTIFACT_NAME }}.sha512
-#      env:
-#        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Running cargo build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        toolchain: ${{ matrix.rust }}
+        args: --locked --release --target ${{ env.RUST_TARGET }} --no-default-features --features "${{ matrix.features }},${{ matrix.audio_backend }}"
+    - name: Packaging final binary
+      shell: bash
+      run: |
+        cd target/${{ env.RUST_TARGET }}/release
+        tar czvf ${{ env.ARTIFACT_NAME}}.tar.gz spotifyd
+        shasum -a 512 ${{ env.ARTIFACT_NAME }}.tar.gz > ${{ env.ARTIFACT_NAME }}.sha512
+    - name: Releasing assets
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          target/${{ env.RUST_TARGET }}/release/${{ env.ARTIFACT_NAME }}.tar.gz
+          target/${{ env.RUST_TARGET }}/release/${{ env.ARTIFACT_NAME }}.sha512
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

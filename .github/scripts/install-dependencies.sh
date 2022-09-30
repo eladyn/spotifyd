@@ -12,18 +12,18 @@ BUILD_TYPE=${5}    # slim, default, full
 export DEBIAN_FRONTEND=noninteractive
 
 # Native sources
-cat | sudo tee /etc/apt/sources.list > /dev/null << EOT_NATIVE
-deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal main restricted universe multiverse
-deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ focal-updates main restricted universe multiverse
-deb [arch=amd64] http://security.ubuntu.com/ubuntu/ focal-security main restricted universe multiverse
-EOT_NATIVE
+cat | sudo tee /etc/apt/sources.list > /dev/null << EOT
+deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic main restricted universe multiverse
+deb [arch=amd64] http://archive.ubuntu.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb [arch=amd64] http://security.ubuntu.com/ubuntu/ bionic-security main restricted universe multiverse
+EOT
 
 # If building cross, cross sources
 if [ "${BINARCH}" != "$(uname -m)" ]; then
 	cat | sudo tee /etc/apt/sources.list.d/cross.list > /dev/null << EOT_CROSS
-deb [arch=$DEBARCH] http://ports.ubuntu.com/ focal main restricted universe multiverse
-deb [arch=$DEBARCH] http://ports.ubuntu.com/ focal-updates main restricted universe multiverse
-deb [arch=$DEBARCH] http://ports.ubuntu.com/ focal-security main restricted universe multiverse
+deb [arch=$DEBARCH] http://ports.ubuntu.com/ bionic main restricted universe multiverse
+deb [arch=$DEBARCH] http://ports.ubuntu.com/ bionic-updates main restricted universe multiverse
+deb [arch=$DEBARCH] http://ports.ubuntu.com/ bionic-security main restricted universe multiverse
 EOT_CROSS
 else
 	sudo rm -f /etc/apt/sources.list.d/cross.list
@@ -43,19 +43,27 @@ else
 	BUILD_PKGS="gcc libc6 libc6-dev pkg-config"
 fi
 
-sudo apt-get update
+sudo apt update
 
 # Always install all dependencies, even if we are building default or even slim
-BUILDDEP_SLIM="libasound2-dev${CROSS} libssl-dev${CROSS} libpulse-dev${CROSS} libdbus-1-dev${CROSS} libssl1.1${CROSS}"
+BUILDDEP_SLIM="libasound2-dev${CROSS} libssl-dev${CROSS} libssl1.1${CROSS}"
 BUILDDEP_DEFAULT="libdbus-1-dev${CROSS} libdbus-1-3${CROSS} libsystemd0${CROSS} libsystemd-dev${CROSS} libgcrypt20${CROSS} libgcrypt20-dev${CROSS} liblzma5${CROSS} liblzma-dev${CROSS} liblz4-1${CROSS} liblz4-dev${CROSS} libgpg-error0${CROSS} libgpg-error-dev${CROSS}"
 BUILDDEP_FULL="libpulse-dev${CROSS}"
 
-sudo apt-get install -y \
+case $BUILD_TYPE in
+	full)
+		BUILDDEP="$BUILDDEP_FULL " ;&
+	default)
+		BUILDDEP="${BUILDDEP}$BUILDDEP_DEFAULT " ;&
+	slim)
+	  BUILDDEP="${BUILDDEP}$BUILDDEP_SLIM" ;&
+esac
+
+sudo apt install -y \
 	build-essential \
-	${BUILD_PKGS} \
-	${BUILDDEP_SLIM} \
-	${BUILDDEP_DEFAULT} \
-	${BUILDDEP_FULL}
+	${BUILD_PKGS}
+
+sudo apt install -y -f ${BUILDDEP}
 
 if [ "${ARCH}" == "armv6" ]; then
 	curl -L -o /tmp/toolchain.tar.bz2 https://toolchains.bootlin.com/downloads/releases/toolchains/armv6-eabihf/tarballs/armv6-eabihf--glibc--stable-2020.08-1.tar.bz2
