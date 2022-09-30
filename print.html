@@ -95,7 +95,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded affix "><a href="Introduction.html">Introduction</a></li><li class="chapter-item expanded "><a href="installation/index.html"><strong aria-hidden="true">1.</strong> Installation Instructions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="installation/Raspberry-Pi.html"><strong aria-hidden="true">1.1.</strong> Installing on a Raspberry Pi</a></li><li class="chapter-item expanded "><a href="installation/Ubuntu.html"><strong aria-hidden="true">1.2.</strong> Installing on Ubuntu (from source)</a></li><li class="chapter-item expanded "><a href="installation/Cross-Compiling-on-Ubuntu.html"><strong aria-hidden="true">1.3.</strong> Cross Compiling on Ubuntu</a></li><li class="chapter-item expanded "><a href="installation/MacOS.html"><strong aria-hidden="true">1.4.</strong> Installing with Homebrew on macOS</a></li><li class="chapter-item expanded "><a href="Feature-flags.html"><strong aria-hidden="true">1.5.</strong> Feature Flags</a></li></ol></li><li class="chapter-item expanded "><a href="config/index.html"><strong aria-hidden="true">2.</strong> Configuration</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="config/Cli.html"><strong aria-hidden="true">2.1.</strong> CLI options</a></li><li class="chapter-item expanded "><a href="config/File.html"><strong aria-hidden="true">2.2.</strong> Configuration file</a></li><li class="chapter-item expanded "><strong aria-hidden="true">2.3.</strong> Running as a Service</li><li><ol class="section"><li class="chapter-item expanded "><a href="config/services/Sytemd.html"><strong aria-hidden="true">2.3.1.</strong> Running as systemd service</a></li><li class="chapter-item expanded "><a href="config/services/MacOS.html"><strong aria-hidden="true">2.3.2.</strong> Running as launchd service (MacOS)</a></li></ol></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="Introduction.html">Introduction</a></li><li class="chapter-item expanded "><a href="installation/index.html"><strong aria-hidden="true">1.</strong> Installation Instructions</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="installation/Raspberry-Pi.html"><strong aria-hidden="true">1.1.</strong> Installing on a Raspberry Pi</a></li><li class="chapter-item expanded "><a href="installation/Ubuntu.html"><strong aria-hidden="true">1.2.</strong> Installing on Ubuntu (from source)</a></li><li class="chapter-item expanded "><a href="installation/Cross-Compiling-on-Ubuntu.html"><strong aria-hidden="true">1.3.</strong> Cross Compiling on Ubuntu</a></li><li class="chapter-item expanded "><a href="installation/MacOS.html"><strong aria-hidden="true">1.4.</strong> Installing with Homebrew on macOS</a></li><li class="chapter-item expanded "><a href="installation/FreeBSD.html"><strong aria-hidden="true">1.5.</strong> Installing on FreeBSD</a></li></ol></li><li class="chapter-item expanded "><a href="config/index.html"><strong aria-hidden="true">2.</strong> Configuration</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="config/Cli.html"><strong aria-hidden="true">2.1.</strong> CLI options</a></li><li class="chapter-item expanded "><a href="config/File.html"><strong aria-hidden="true">2.2.</strong> Configuration file</a></li><li class="chapter-item expanded "><a href="config/services/index.html"><strong aria-hidden="true">2.3.</strong> Running as a Service</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="config/services/Systemd.html"><strong aria-hidden="true">2.3.1.</strong> Running as systemd service</a></li><li class="chapter-item expanded "><a href="config/services/MacOS.html"><strong aria-hidden="true">2.3.2.</strong> Running as launchd service (MacOS)</a></li></ol></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle"></div>
         </nav>
@@ -174,7 +174,7 @@
 <h2><a class="header" href="#provided-packages" id="provided-packages">Provided packages</a></h2>
 <p>There are packages for the following systems:</p>
 <ul>
-<li><a href="https://aur.archlinux.org/packages/?O=0&amp;K=spotifyd">Arch Linux (via an AUR)</a></li>
+<li><a href="https://archlinux.org/packages/community/x86_64/spotifyd/">Arch Linux (via the Community repository)</a></li>
 <li><a href="installation/./MacOS.html">MacOS (via homebrew)</a></li>
 </ul>
 <p>It is also available as a <a href="https://snapcraft.io/spotifyd">snap package</a>.</p>
@@ -232,11 +232,11 @@ flags that are set by default in <code>Cargo.toml</code>.</p>
 <h2><a class="header" href="#download" id="download">Download</a></h2>
 <ol>
 <li>Download the latest ARMv6 from https://github.com/Spotifyd/spotifyd/releases (use <code>wget</code>)</li>
-<li>Unzip the file: <code>unzip spotifyd-*.zip</code>
+<li>Unzip the file: <code>tar xzf spotifyd-linux-arm6*</code>
 You will now see a file called <code>spotifyd</code>. You can run it with <code>./spotifyd --no-daemon</code></li>
 </ol>
 <h2><a class="header" href="#systemd-daemon-file" id="systemd-daemon-file">Systemd daemon file</a></h2>
-<p>Create a systemd service file and copy the config from https://github.com/Spotifyd/spotifyd/blob/master/contrib/spotifyd.service into it. Change <strong>ExecStart</strong> to where you unzipped the <code>spotifyd</code> binary.</p>
+<p>Create a systemd service file and copy the <a href="https://github.com/Spotifyd/spotifyd/blob/master/contrib/spotifyd.service">default configuration</a> into it. Change <strong>ExecStart</strong> to where you unzipped the <code>spotifyd</code> binary.</p>
 <pre><code class="language-bash">sudo nano /etc/systemd/user/spotifyd.service
 </code></pre>
 <p>if you want to run as user instead of root or have some <code>Failed to get D-Bus connection: Connection refused</code>, you define <code>spotifyd.service</code> in your home directory:</p>
@@ -244,26 +244,8 @@ You will now see a file called <code>spotifyd</code>. You can run it with <code>
 nano ~/.config/systemd/user/spotifyd.service
 systemctl --user daemon-reload
 </code></pre>
-<h2><a class="header" href="#config-file" id="config-file">Config file</a></h2>
-<p>Create your config:</p>
-<pre><code class="language-bash">mkdir ~/.config/spotifyd/
-nano ~/.config/spotifyd/spotifyd.conf
-</code></pre>
-<p>Input the following data. Change the <strong>username</strong>, <strong>password</strong>, <strong>device_name</strong>, and the <strong>bitrate</strong>.</p>
-<pre><code class="language-toml">[global]
-username = &quot;USER&quot;
-password = &quot;PASS&quot;
-backend = &quot;alsa&quot;
-device = alsa_audio_device # Given by `aplay -L`
-mixer = &quot;PCM&quot;
-volume-controller = &quot;alsa&quot; # or alsa_linear, or softvol
-#onevent = command_run_on_playback_event
-device_name = &quot;name_in_spotify_connect&quot;
-bitrate = 96|160|320
-cache_path = &quot;cache_directory&quot;
-volume-normalisation = true
-normalisation-pregain = -10
-</code></pre>
+<h2><a class="header" href="#configuring-spotifyd" id="configuring-spotifyd">Configuring spotifyd</a></h2>
+<p>Spotifyd comes pre-configured with defaults that should be working in most cases, but if you want to tweak it further to your needs, have a look at the <a href="installation/../config/">configuration section</a> of this book.</p>
 <h2><a class="header" href="#start-the-service" id="start-the-service">Start the service</a></h2>
 <pre><code class="language-bash">systemctl --user start spotifyd.service
 </code></pre>
@@ -317,7 +299,27 @@ rustup target add arm-unknown-linux-gnueabihf
 <p><code>brew install spotifyd</code></p>
 <p>One can then enable it as a service at startup:</p>
 <p><code>brew services start spotifyd</code></p>
-<h1><a class="header" href="#feature-flags-1" id="feature-flags-1">Feature Flags</a></h1>
+<h1><a class="header" href="#freebsd-install-guide" id="freebsd-install-guide">FreeBSD install guide</a></h1>
+<p>This guide will help you to install <code>spotifyd</code> on FreeBSD and have it always running.</p>
+<p><code>spotifyd</code> is available for the FreeBSD architectures :</p>
+<ul>
+<li>amd64</li>
+<li>i386</li>
+<li>arm64</li>
+</ul>
+<h2><a class="header" href="#install" id="install">Install</a></h2>
+<pre><code class="language-sh">sudo pkg install spotifyd
+</code></pre>
+<h2><a class="header" href="#configuring-spotifyd-1" id="configuring-spotifyd-1">Configuring spotifyd</a></h2>
+<p>If you installed spotifyd using the above method, you'll either need to supply <code>--backend portaudio</code> as a command-line argument or add <code>backend = &quot;portaudio&quot;</code> to <code>/usr/local/etc/spotifyd.conf</code>.</p>
+<p>Apart from that, spotifyd comes pre-configured with defaults that should be working in most cases, but if you want to tweak it further to your needs, have a look at the <a href="installation/../config/">configuration section</a> of this book.</p>
+<h2><a class="header" href="#start-the-service-1" id="start-the-service-1">Start the service</a></h2>
+<pre><code class="language-bash">sudo service spotifyd onestart
+</code></pre>
+<p>Now see if you can find it in the normal Spotify client (Devices in right bottom corner). Retry the above steps if you can't find it.</p>
+<h2><a class="header" href="#starting-spotifyd-at-boot-1" id="starting-spotifyd-at-boot-1">Starting spotifyd at boot</a></h2>
+<pre><code class="language-sh">sudo sysrc spotifyd_enable=YES
+</code></pre>
 <h1><a class="header" href="#configuration" id="configuration">Configuration</a></h1>
 <p><code>Spotifyd</code> is able to run without configuration at all and will assume default values for most of the fields. However, running without configuration will only allow you to connect to it via Spotify Connect if you're on the same network as the daemon</p>
 <h1><a class="header" href="#command-line-options" id="command-line-options">Command Line Options</a></h1>
@@ -350,18 +352,25 @@ password_cmd = &quot;command_that_writes_password_to_stdout&quot;
 # can't be used simultaneously.
 use_keyring = true
 
-#
-# If set to true, `spotifyd` tries to bind to the session dbus
-# and expose MPRIS controls. When running headless, without a dbus session,
-# then set this to false to avoid binding errors
-#
+# If set to true, `spotifyd` tries to bind to dbus (default is the session bus)
+# and expose MPRIS controls. When running headless, without the session bus,
+# you should set this to false, to avoid errors. If you still want to use MPRIS,
+# have a look at the `dbus_type` option.
 use_mpris = true
 
-# The audio backend used to play the your music. To get
-# a list of possible backends, run `spotifyd --help`.
-backend = &quot;alsa&quot;
+# The bus to bind to with the MPRIS interface.
+# Possible values: &quot;session&quot;, &quot;system&quot;
+# The system bus can be used if no graphical session is available
+# (e.g. on headless systems) but you still want to be able to use MPRIS.
+# NOTE: You might need to add appropriate policies to allow spotifyd to
+# own the name.
+dbus_type = &quot;session&quot;
 
-# The alsa audio device to stream audio to. To get a
+# The audio backend used to play music. To get
+# a list of possible backends, run `spotifyd --help`.
+backend = &quot;alsa&quot; # use portaudio for macOS [homebrew]
+
+# The alsa audio device to stream audio. To get a
 # list of valid devices, run `aplay -L`,
 device = &quot;alsa_audio_device&quot;  # omit for macOS
 
@@ -370,7 +379,7 @@ device = &quot;alsa_audio_device&quot;  # omit for macOS
 control = &quot;alsa_audio_device&quot;  # omit for macOS
 
 # The alsa mixer used by `spotifyd`.
-mixer = &quot;PCM&quot;
+mixer = &quot;PCM&quot;  # omit for macOS
 
 # The volume controller. Each one behaves different to
 # volume increases. For possible values, run
@@ -395,6 +404,10 @@ bitrate = 160
 # shell placeholders like $HOME or ~ don't work!
 cache_path = &quot;cache_directory&quot;
 
+# The maximal size of the cache directory in bytes
+# The example value corresponds to ~ 1GB
+max_cache_size = 1000000000
+
 # If set to true, audio data does NOT get cached.
 no_audio_cache = true
 
@@ -407,6 +420,9 @@ volume_normalisation = true
 
 # The normalisation pregain that is applied for each song.
 normalisation_pregain = -10
+
+# After the music playback has ended, start playing similar songs based on the previous tracks.
+autoplay = true
 
 # The port `spotifyd` uses to announce its service over the network.
 zeroconf_port = 1234
@@ -422,6 +438,15 @@ device_type = &quot;speaker&quot;
 <h2><a class="header" href="#alternatives-to-storing-your-password-in-the-config-file----omit-in-toc---" id="alternatives-to-storing-your-password-in-the-config-file----omit-in-toc---">Alternatives to storing your password in the config file <!-- omit in toc --></a></h2>
 <ul>
 <li>
+<p>use zeroconf authentication from Spotify Connect</p>
+<p>Spotifyd is able to advertise itself on the network without credentials. To enable this, you must omit / comment any <code>username</code> / <code>username_cmd</code> or <code>password</code> / <code>password_cmd</code> in the configuration. Spotifyd will receive an authentication blob from Spotify when you choose it from the devices list.</p>
+<blockquote>
+<p><strong>Note:</strong> If you choose to go with this, it is also recommended to omit the <code>cache_path</code> and <code>cache_directory</code> options. Otherwise the first user to connect to the service will have its authentication blob cached by the service and nobody else will be able to connect to the service without clearing the cache.</p>
+</blockquote>
+<p>This way, a Spotifyd instance can also be made available to multiple users.</p>
+<p>For more information, have a look at the <a href="https://github.com/librespot-org/librespot/blob/master/docs/authentication.md#zeroconf-based-authentication">librespot documentation</a>.</p>
+</li>
+<li>
 <p><strong><code>password_cmd</code></strong> config entry</p>
 <p>This feature allows you to provide a command that prints your password to <code>stdout</code>, which saves you from having to store your password in the config file directly. To use it, set the <code>password_cmd</code> config entry to the command you would like to use and remove the <code>password</code> config entry.</p>
 <p>For example (using the password-management utility <a href="https://www.passwordstore.org/">pass</a>).</p>
@@ -431,7 +456,7 @@ password_cmd = &quot;pass spotify&quot;
 </li>
 <li>
 <p><strong><code>use_keyring</code></strong> config entry / <strong><code>--use-keyring</code></strong> CLI flag <!-- omit in toc --></p>
-<p>This features leverages <a href="https://www.freedesktop.org/wiki/Specifications/secret-storage-spec/">Linux's DBus Secret Service API</a> or native macOS keychain in order to forgo the need to store your password directly in the config file. To use it, complile with the <code>dbus_keyring</code> feature and set the <code>use-keyring</code> config entry to <code>true</code> or pass the <code>--use-keyring</code> CLI flag  during start to the daemon. Remove the <code>password</code> and/or <code>password_cmd</code> config entries.</p>
+<p>This features leverages <a href="https://www.freedesktop.org/wiki/Specifications/secret-storage-spec/">Linux's DBus Secret Service API</a> or native macOS keychain in order to forgo the need to store your password directly in the config file. To use it, compile with the <code>dbus_keyring</code> feature and set the <code>use-keyring</code> config entry to <code>true</code> or pass the <code>--use-keyring</code> CLI flag  during start to the daemon. Remove the <code>password</code> and/or <code>password_cmd</code> config entries.</p>
 <p>Your keyring entry needs to have the following attributes set:</p>
 <pre><code class="language-yaml">application: rust-keyring
 service: spotifyd
@@ -447,15 +472,25 @@ username: &lt;your-spotify-username&gt;
 </ul>
 <h2><a class="header" href="#shell-used-to-run-commands-indicated-by-password_cmd-or-on_song_changed_hook----omit-in-toc---" id="shell-used-to-run-commands-indicated-by-password_cmd-or-on_song_changed_hook----omit-in-toc---">Shell used to run commands indicated by <code>password_cmd</code> or <code>on_song_changed_hook</code> <!-- omit in toc --></a></h2>
 <p>If either of these options is given, the shell <code>spotifyd</code> will use to run its commands is the shell indicated by the <code>SHELL</code> environment variable, if set. If the <code>SHELL</code> environment variable is not set, <code>spotifyd</code> will use the user's default shell, which, on Linux and BSD, is the shell listed in <code>/etc/passwd</code>. On macOS it is the shell listed in the output of <code>dscl . -read /Users/&lt;username&gt; UserShell</code>.</p>
-<h1><a class="header" href="#running-spotifyd-as-a-service-using-systemd" id="running-spotifyd-as-a-service-using-systemd">Running spotifyd as a service using systemd</a></h1>
+<h1><a class="header" href="#running-as-a-service" id="running-as-a-service">Running as a Service</a></h1>
+<p>You can run Spotifyd as a service that automatically starts in the background.</p>
+<h1><a class="header" href="#running-spotifyd-as-a-systemd-service" id="running-spotifyd-as-a-systemd-service">Running spotifyd as a systemd service</a></h1>
+<h2><a class="header" href="#as-as-a-user-service" id="as-as-a-user-service">As as a user service</a></h2>
 <p>A <code>systemd.service</code> unit file is provided to help run spotifyd as a service on systemd-based systems. The file <code>contrib/spotifyd.service</code> should be copied to either:</p>
 <pre><code class="language-bash">/etc/systemd/user/
 ~/.config/systemd/user/
 </code></pre>
 <p>Packagers of systemd-based distributions are encouraged to include the file in the former location. End-user should prefer the latter. It should be noted that some targets are not available when running under the user directory, such as <code>network-online.target</code>.</p>
-<p>Control of the daemon is handed over to systemd. The following example commands will run the service once and enable the service to always run on login in the future respectively:</p>
-<pre><code class="language-bash">systemctl --user start spotifyd.service
-systemctl --user enable spotifyd.service
+<p>Control of the daemon is handed over to systemd. The following command will start the service whenever the user logs in to the system. Logging out will stop the service.</p>
+<pre><code class="language-bash">systemctl --user enable spotifyd.service --now
+</code></pre>
+<h2><a class="header" href="#as-a-system-wide-service" id="as-a-system-wide-service">As a system wide service</a></h2>
+<p>A <code>systemd.service</code> unit file is provided to help run spotifyd as a service on systemd-based systems. The file <code>contrib/spotifyd.service</code> should be copied to:</p>
+<pre><code class="language-bash">/etc/systemd/system/
+</code></pre>
+<p>Control of the daemon is handed over to systemd. The following example commands will start the service and keep it running across reboots.</p>
+<pre><code class="language-bash">systemctl daemon-reload
+systemctl enable spotifyd.service --now
 </code></pre>
 <h1><a class="header" href="#running-spotifyd-as-a-service-on-macos" id="running-spotifyd-as-a-service-on-macos">Running spotifyd as a service on macOS</a></h1>
 <p>On macOS the system wide and per-user daemon/agent manager is known as <code>launchd</code>. Interfacing with <code>launchd</code> is performed through <code>launchctl</code>.</p>
