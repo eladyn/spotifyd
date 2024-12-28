@@ -1,4 +1,5 @@
-use crate::config::DBusType;
+#[cfg(feature = "dbus_mpris")]
+use crate::config::{DBusType, MprisConfig};
 #[cfg(feature = "dbus_mpris")]
 use crate::dbus_mpris::DbusServer;
 use crate::process::spawn_program_on_event;
@@ -69,11 +70,9 @@ pub(crate) struct MainLoop {
     pub(crate) initial_volume: Option<u16>,
     pub(crate) shell: String,
     pub(crate) device_type: DeviceType,
-    #[cfg_attr(not(feature = "dbus_mpris"), allow(unused))]
-    pub(crate) use_mpris: bool,
-    #[cfg_attr(not(feature = "dbus_mpris"), allow(unused))]
-    pub(crate) dbus_type: DBusType,
     pub(crate) credentials_provider: CredentialsProvider,
+    #[cfg(feature = "dbus_mpris")]
+    pub(crate) mpris_config: MprisConfig,
 }
 
 impl MainLoop {
@@ -105,10 +104,13 @@ impl MainLoop {
         }
 
         #[cfg(feature = "dbus_mpris")]
-        let mpris_event_tx = if self.use_mpris {
+        let mpris_event_tx = if self.mpris_config.use_mpris.unwrap_or(true) {
             let (tx, rx) = tokio::sync::mpsc::unbounded_channel();
-            *dbus_server.as_mut() =
-                Either::Left(DbusServer::new(rx, self.dbus_type, self.session.clone()));
+            *dbus_server.as_mut() = Either::Left(DbusServer::new(
+                rx,
+                self.mpris_config.dbus_type.unwrap_or(DBusType::Session),
+                self.session.clone(),
+            ));
             Some(tx)
         } else {
             None
