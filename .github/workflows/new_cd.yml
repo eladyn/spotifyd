@@ -22,6 +22,6 @@ jobs:
         run: contrib/gen-docker-compose.sh linux/arm64 > docker-compose.yml
       - name: Run compose file
         run: |
-          docker compose up
+          docker compose up --exit-code-from build-container
 
         
