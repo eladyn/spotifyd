@@ -2,11 +2,13 @@ name: Continuous Deployment
 
 on:
   push:
+    branches:
+      - master
     tags:
       - 'v*.*.*'
 
 jobs:
-  publish:
+  build:
     name: Publishing ${{ matrix.build_target }}-${{ matrix.artifact_type }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -155,17 +157,32 @@ jobs:
           command: build
           toolchain: ${{ matrix.rust }}
           args: --locked --release --target ${{ matrix.target }} --no-default-features --features "${{ matrix.feature }},${{ matrix.audio_backend }}"
+      - name: Uploading artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: spotifyd-${{ matrix.artifact_prefix }}-${{ matrix.artifact_type }}
+          path: target/${{ matrix.target }}/release/spotifyd
+  release: # only runs when a version tag is pushed
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Downloading artifacts # download all binaries
+        uses: actions/download-artifact@v4
       - name: Packaging final binary
         shell: bash
         run: |
-          cd target/${{ matrix.target }}/release
-          tar czvf spotifyd-${{ matrix.artifact_prefix }}-${{ matrix.artifact_type }}.tar.gz spotifyd
-          shasum -a 512 spotifyd-${{ matrix.artifact_prefix }}-${{ matrix.artifact_type }}.tar.gz > spotifyd-${{ matrix.artifact_prefix }}-${{ matrix.artifact_type }}.sha512
+          for artifact_name in $(pwd)/*/
+          do
+            cd $artifact_name
+            tar czvf $artifact_name.tar.gz spotifyd
+            shasum -a 512 $artifact_name.tar.gz > $artifact_name.sha512
+          done
       - name: Releasing assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            target/${{ matrix.target }}/release/spotifyd-${{ matrix.artifact_prefix }}-${{ matrix.artifact_type }}.tar.gz
-            target/${{ matrix.target }}/release/spotifyd-${{ matrix.artifact_prefix }}-${{ matrix.artifact_type }}.sha512
+            '**/*.tar.gz'
+            '**/*.sha512'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
