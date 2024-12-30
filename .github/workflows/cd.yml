@@ -107,6 +107,7 @@ jobs:
           sudo dpkg -x libssl-dev*.deb /build/sysroot/
           sudo dpkg -x libssl1.1*.deb /build/sysroot/
           sudo dpkg -x libasound2-dev*.deb /build/sysroot/
+          ls -R /build/sysroot/
           rustup toolchain install stable
           cargo +stable install --force --locked bindgen-cli
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
