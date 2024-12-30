@@ -1,0 +1,14 @@
+services:
+  build-container:
+    image: rust:1.79-bookworm
+    platform: linux/arm64
+    command: bash -c "
+        apt-get update &&
+        apt-get install -y \
+          libasound2-dev \
+          libssl-dev \
+          pkg-config &&
+        cargo build --release"
+    working_dir: /build
+    volumes:
+      - ./:/build

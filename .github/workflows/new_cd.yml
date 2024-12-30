@@ -18,23 +18,8 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
-      - name: Create compose file
-        run: |
-          echo 'services:\
-            build-container:
-              image: rust:1.79-bookworm
-              platform: linux/arm64
-              command: bash -c "
-                apt-get update &&
-                apt-get install -y \
-                  libasound2-dev \
-                  libssl-dev \
-                  pkg-config &&
-                cargo build --release"
-            working_dir: /build
-            volumes:
-              - ./:/build' > docker-compose.yml
       - name: Run compose file
-        run: docker compose up
+        run: |
+          docker compose -f contrib/docker-compose.yml up
 
         
