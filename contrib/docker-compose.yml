@@ -1,8 +1,10 @@
 services:
   build-container:
-    image: rust:1.79-bookworm
+    image: rust:bookworm
     platform: linux/arm64
     command: bash -c "
+        pwd &&
+        ls -R &&
         apt-get update &&
         apt-get install -y \
           libasound2-dev \
