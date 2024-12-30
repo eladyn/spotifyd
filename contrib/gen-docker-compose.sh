@@ -30,7 +30,7 @@ services:
         apt-get update &&
         apt-get install -y ${dependencies[*]} &&
         cargo build --release --no-default-features --features $features"
-    working_dir: /spotifyd
+    working_dir: /build
     volumes:
       - ./:/build
 END_FILE
