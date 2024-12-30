@@ -99,7 +99,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y -qq libasound2-dev libssl-dev libpulse-dev libdbus-1-dev
       - name: Installing needed Ubuntu armhf dependencies
-        if: matrix.os == 'ubuntu-18.04' && matrix.build_target == 'linux-armhf'
+        if: startsWith(matrix.os, 'ubuntu') && matrix.build_target == 'linux-armhf'
         run: |
           sudo mkdir -p /build/sysroot
           echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ bionic main" | sudo tee -a /etc/apt/sources.list
@@ -111,13 +111,12 @@ jobs:
           sudo dpkg -x libssl1.1*.deb /build/sysroot/
           sudo dpkg -x libasound2-dev*.deb /build/sysroot/
           echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
-          which arm-linux-gnueabihf-gcc
           echo "RUSTFLAGS=-C linker=arm-linux-gnueabihf-gcc -L/usr/arm-linux-gnueabihf/lib -L/build/sysroot/usr/lib/arm-linux-gnueabihf -L/build/sysroot/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
           echo "C_INCLUDE_PATH=/build/sysroot/usr/include" >> $GITHUB_ENV
           echo "OPENSSL_LIB_DIR=/build/sysroot/usr/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
           echo "OPENSSL_INCLUDE_DIR=/build/sysroot/usr/include/arm-linux-gnueabihf" >> $GITHUB_ENV
       - name: Installing needed Ubuntu armv6 dependencies
-        if: matrix.os == 'ubuntu-18.04' && matrix.build_target == 'linux-armv6'
+        if: startsWith(matrix.os, 'ubuntu') && matrix.build_target == 'linux-armv6'
         run: |
           sudo mkdir -p /build/sysroot
           echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ bionic main" | sudo tee -a /etc/apt/sources.list
@@ -131,7 +130,6 @@ jobs:
           sudo dpkg -x libasound2-dev*.deb /build/sysroot/
           echo "/build/tools/arm-bcm2708/arm-linux-gnueabihf/bin" >> $GITHUB_PATH
           echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
-          echo "TEST=abcd" >> $GITHUB_ENV
           echo "RUSTFLAGS=-C linker=/build/tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc -L/build/tools/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot/lib -L/build/tools/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib -L/build/sysroot/usr/lib/arm-linux-gnueabihf -L/build/sysroot/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
           echo "C_INCLUDE_PATH=/build/sysroot/usr/include" >> $GITHUB_ENV
           echo "OPENSSL_LIB_DIR=/build/sysroot/usr/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
