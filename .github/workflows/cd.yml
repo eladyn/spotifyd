@@ -92,7 +92,8 @@ jobs:
         run: |
           brew install awk dbus pkg-config portaudio
           echo SDKROOT=$(xcrun -sdk macosx --show-sdk-path) >> $GITHUB_ENV
-          echo MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version)
+          echo MACOSX_DEPLOYMENT_TARGET=$(xcrun -sdk macosx --show-sdk-platform-version) >> $GITHUB_ENV
+          echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
       - name: Installing needed Ubuntu dependencies
         if: startsWith(matrix.os, 'ubuntu')
         run: |
