@@ -18,8 +18,10 @@ jobs:
         uses: docker/setup-qemu-action@v3
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Create compose file
+        run: contrib/gen-docker-compose.sh linux/arm64 > docker-compose.yml
       - name: Run compose file
         run: |
-          docker compose -f contrib/docker-compose.yml --project-directory . up
+          docker compose up
 
         
