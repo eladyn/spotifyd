@@ -101,13 +101,14 @@ jobs:
           sudo mkdir -p /build/sysroot
           echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ bionic main" | sudo tee -a /etc/apt/sources.list
           sudo apt-get update
-          sudo apt-get install -y -qq gcc-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross gcc-multilib
+          sudo apt-get install -y -qq gcc-arm-linux-gnueabihf libc6-armhf-cross libc6-dev-armhf-cross
           sudo apt-get download libasound2:armhf libasound2-dev:armhf libssl-dev:armhf libssl1.1:armhf
           sudo dpkg -x libasound2_*.deb /build/sysroot/
           sudo dpkg -x libssl-dev*.deb /build/sysroot/
           sudo dpkg -x libssl1.1*.deb /build/sysroot/
           sudo dpkg -x libasound2-dev*.deb /build/sysroot/
-          cargo install --force --locked bindgen-cli
+          rustup toolchain install stable
+          cargo +stable install --force --locked bindgen-cli
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
           echo "RUSTFLAGS=-C linker=arm-linux-gnueabihf-gcc -L/usr/arm-linux-gnueabihf/lib -L/build/sysroot/usr/lib/arm-linux-gnueabihf -L/build/sysroot/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
@@ -120,14 +121,15 @@ jobs:
           sudo mkdir -p /build/sysroot
           echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ bionic main" | sudo tee -a /etc/apt/sources.list
           sudo apt-get update
-          sudo apt-get install -y -qq git gcc-multilib
+          sudo apt-get install -y -qq git
           sudo git -C /build clone --depth=1 https://github.com/raspberrypi/tools.git
           sudo apt-get download libasound2:armhf libasound2-dev:armhf libssl-dev:armhf libssl1.1:armhf
           sudo dpkg -x libasound2_*.deb /build/sysroot/
           sudo dpkg -x libssl-dev*.deb /build/sysroot/
           sudo dpkg -x libssl1.1*.deb /build/sysroot/
           sudo dpkg -x libasound2-dev*.deb /build/sysroot/
-          cargo install --force --locked bindgen-cli
+          rustup toolchain install stable
+          cargo +stable install --force --locked bindgen-cli
           echo "/build/tools/arm-bcm2708/arm-linux-gnueabihf/bin" >> $GITHUB_PATH
           echo "PKG_CONFIG_ALLOW_CROSS=1" >> $GITHUB_ENV
           echo "RUSTFLAGS=-C linker=/build/tools/arm-bcm2708/arm-linux-gnueabihf/bin/arm-linux-gnueabihf-gcc -L/build/tools/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot/lib -L/build/tools/arm-bcm2708/arm-linux-gnueabihf/arm-linux-gnueabihf/sysroot/usr/lib -L/build/sysroot/usr/lib/arm-linux-gnueabihf -L/build/sysroot/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
