@@ -27,9 +27,9 @@ services:
     image: debian:bookworm
     platform: $platform
     command: bash -c "
-        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --default-toolchain stable -y &&
         apt-get update &&
-        apt-get install -y ${dependencies[*]} &&
+        apt-get install -y curl ${dependencies[*]} &&
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --default-toolchain stable -y &&
         cargo build --release --no-default-features --features $features"
     working_dir: /build
     volumes:
