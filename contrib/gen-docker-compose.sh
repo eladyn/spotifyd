@@ -24,9 +24,10 @@ fi
 cat << END_FILE
 services:
   build-container:
-    image: rust:bookworm
+    image: debian:bookworm
     platform: $platform
     command: bash -c "
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --profile default --default-toolchain stable -y &&
         apt-get update &&
         apt-get install -y ${dependencies[*]} &&
         cargo build --release --no-default-features --features $features"
