@@ -20,7 +20,7 @@ We can also use `docker` to cross compile on every platform and OS that runs `do
     ```yaml
     services:
       build-container:
-        image: rust:1.81-bookworm
+        image: rust:1-bookworm
         platform: linux/arm64
         command: bash -c "
             apt-get update &&
