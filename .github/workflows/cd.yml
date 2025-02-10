@@ -94,6 +94,8 @@ jobs:
           echo "C_INCLUDE_PATH=/build/sysroot/usr/include" >> $GITHUB_ENV
           echo "OPENSSL_LIB_DIR=/build/sysroot/usr/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
           echo "OPENSSL_INCLUDE_DIR=/build/sysroot/usr/include/arm-linux-gnueabihf" >> $GITHUB_ENV
+          echo "PKG_CONFIG_LIBDIR_armv7_unknown_linux_gnueabihf=/build/sysroot/usr/lib/arm-linux-gnueabihf/pkgconfig" >> $GITHUB_ENV
+          echo "PKG_CONFIG_SYSROOT_DIR_armv7_unknown_linux_gnueabihf=/build/sysroot" >> $GITHUB_ENV
       - name: Installing needed Ubuntu armhf dependencies (full)
         if: matrix.os == 'ubuntu-22.04' && matrix.build_target == 'linux-armhf' && matrix.artifact_type != 'slim'
         run: |
