@@ -83,13 +83,14 @@ jobs:
           sudo mkdir -p /build/sysroot
           echo "deb [arch=armhf] http://ports.ubuntu.com/ubuntu-ports/ focal main" | sudo tee -a /etc/apt/sources.list
           sudo apt-get update
-          sudo apt-get install -y -qq gcc-arm-linux-gnueabihf build-essential pkg-config
-          sudo apt-get download libasound2:armhf libasound2-dev:armhf libssl1.1:armhf libssl-dev:armhf
+          sudo apt-get install -y -qq gcc-arm-linux-gnueabihf build-essential pkg-config cmake libclang-dev
+          sudo apt-get download libasound2:armhf libasound2-dev:armhf libssl1.1:armhf libssl-dev:armhf libc6:armhf libc6-dev:armhf linux-libc-dev:armhf
           # unpack debs to build root
           for f in *.deb; do sudo dpkg -x $f /build/sysroot/; done && sudo rm *.deb
           # fix symlinks of libraries
           find /build/sysroot/ -lname '/*' | while read -r link; do abs_target=$(readlink "$link"); sudo ln -fs "/build/sysroot$abs_target" "$link"; done
           echo "RUSTFLAGS=-C linker=arm-linux-gnueabihf-gcc -L/usr/arm-linux-gnueabihf/lib -L/build/sysroot/usr/lib/arm-linux-gnueabihf -L/build/sysroot/lib/arm-linux-gnueabihf" >> $GITHUB_ENV
+          echo "BINDGEN_EXTRA_CLANG_ARGS=--sysroot=/build/sysroot" >> $GITHUB_ENV
           echo "PKG_CONFIG_PATH=/build/sysroot/usr/lib/arm-linux-gnueabihf/pkgconfig" >> $GITHUB_ENV
           echo "PKG_CONFIG_SYSROOT_DIR=/build/sysroot" >> $GITHUB_ENV
       - name: Installing needed Ubuntu armhf dependencies (full)
