@@ -72,7 +72,7 @@ jobs:
           # WORKAROUND: fix aws-lc-sys compiler bug failure
           sudo apt-get remove -y gcc-9
           sudo apt-get install -y gcc-10
-          echo CC=/usr/bin/gcc-10 >> "$GITHUB_ENV"
+          echo "CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_LINKER=gcc-10" >> "$GITHUB_ENV"
           # alsa_backend,rodio_backend and base deps
           sudo apt-get install -y libasound2-dev libssl-dev
           # dbus_mpris
